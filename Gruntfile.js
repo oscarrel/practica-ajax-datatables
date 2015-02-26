@@ -19,7 +19,7 @@ module.exports = function (grunt) {
   // Configurable paths
   var config = {
     app: 'app',
-    dist: 'dist'
+    dist: '/var/www/p-ajax-datatables'
   };
 
   // Define the configuration for all the tasks
@@ -290,11 +290,13 @@ module.exports = function (grunt) {
             '*.{ico,png,txt}',
             'images/{,*/}*.webp',
             '{,*/}*.html',
+            '{,*/}*.php',
             'styles/fonts/{,*/}*.*'
+            'php/*.*'
           ]
         }, {
           src: 'node_modules/apache-server-configs/dist/.htaccess',
-          dest: '<%= config.dist %>/.htaccess'
+          dest: '<%= config.dist %>/htaccess'
         }, {
           expand: true,
           dot: true,
@@ -325,7 +327,12 @@ module.exports = function (grunt) {
         'imagemin',
         'svgmin'
       ]
-    }
+    },
+    shell: {
+      dist: {
+       command: 'rm -rf <%= config.dist %>/*'
+     }
+   }
   });
 
 
@@ -368,7 +375,7 @@ module.exports = function (grunt) {
   });
 
   grunt.registerTask('build', [
-    'clean:dist',
+    'shell:dist',
     'wiredep',
     'useminPrepare',
     'concurrent:dist',
