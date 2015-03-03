@@ -51,7 +51,7 @@ if (!$query_res) {
         $estado = mysql_errno();
     }
 } else {
-    $mensaje = "Actualización correcta";
+    $mensaje = "Borrado correcto";
     $estado = 0;
 }
 $resultado = array();
