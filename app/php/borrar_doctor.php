@@ -44,7 +44,7 @@ $query_res = mysql_query($query);
 // Comprobar el resultado
 if (!$query_res) {
     if (mysql_errno() == 1451) {
-        $mensaje = "Imposible borrar Doctor. Tiene prescripciones o albaranes definidos, borre primero prescripciones o albaranes";
+        $mensaje = "Imposible Borrar Doctor. Tiene prescripciones o albaranes definidos, borre primero prescripciones o albaranes";
         $estado = mysql_errno();
     } else {
         $mensaje = 'Error en la consulta: ' . mysql_error() . "\n";

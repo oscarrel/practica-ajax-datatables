@@ -37,8 +37,20 @@ mysql_query('SET names utf8');
 $id_doctor = $_POST["id_doctor"];
 $nombre = $_POST["nombre"];
 $numcolegiado = $_POST["numcolegiado"];
-$clinicas = $_POST["clinicas"];
+$clinicas = $_POST["id_clinica"];
 
+if($clinicas){
+  $query = "DELETE FROM clinica_doctor WHERE id_doctor=" . $id;
+  $query_res = mysql_query($query);
+}
+
+for ($i=0;$i<count($clinicas);$i++)
+{
+  $queryCD = "INSERT INTO clinica_doctor (id_doctor,id_clinica) VALUES(
+    ". $id . ",
+    " . $clinicas[$i] . ")" ;
+$query_res = mysql_query($queryCD);
+} 
 
 /* Consulta UPDATE */
 $query = "UPDATE doctores SET 
@@ -46,7 +58,6 @@ nombre = '" . $nombre . "',
 numcolegiado = '" . $numcolegiado . "'
 WHERE id_doctor = " . $id_doctor;
 
-//mysql_query($query, $gaSql['link']) or fatal_error('MySQL Error: ' . mysql_errno());
 /*En función del resultado correcto o no, mostraremos el mensaje que corresponda*/
 $query_res = mysql_query($query);
 
@@ -57,19 +68,8 @@ if (!$query_res) {
 }
 else
 {
-  $query = "delete from clinica_doctor where id_doctor='$id_doctor'";
-  $query_res = mysql_query($query);
-  foreach ($clinicas as $key => $value) {
-    $query = "INSERT INTO `clinica_doctor`(`id_doctor`,`id_clinica`) VALUES ('$numdoctor','$value')";
-    $query_res = mysql_query($query);
-    if (!$query_res) { 
-      $mensaje = 'Error en la consulta: ' . mysql_error() . "\n";
-      $estado = mysql_errno();
-    } else {
-      $estado = 0;
-      $mensaje = "Actualización correcta";
-    }
-  }
+  $mensaje = "Actualización correcta";
+  $estado = 0;
 }
 $resultado = array();
 $resultado[] = array(

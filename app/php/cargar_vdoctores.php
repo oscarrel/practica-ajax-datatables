@@ -30,11 +30,10 @@ $primaryKey = 'id_doctor';
 // indexes
 //Ixquierda, nombre de bd, a la derecha, nombre del json
 $columns = array(
-    array( 'db' => 'nombre', 'dt' => 'nombre' ),
-    array( 'db' => 'id_doctor',  'dt' => 'id_doctor' ),
-    array( 'db' => 'clinicas',   'dt' => 'clinicas' )
+array( 'db' => 'id_doctor', 'dt' => 'idDoctor' ),
+array( 'db' => 'nombre', 'dt' => 'nombre' ),
+array( 'db' => 'clinicas', 'dt' => 'nombreClinica' )
 );
- 
 // SQL server connection information
 $sql_details = array(
     'user' => 'root',
