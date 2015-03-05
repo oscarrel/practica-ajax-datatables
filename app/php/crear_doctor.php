@@ -26,36 +26,34 @@ if (!mysql_select_db($gaSql['db'], $gaSql['link'])) {
 
 mysql_query('SET names utf8');
 
+/*Recojo datos*/
 $nombre = $_POST["nombre_n"];
 $numcolegiado = $_POST["numcolegiado_n"];
 $clinicas = $_POST["clinicas_n"];
 
-/*
- * SQL queries
- * Get data to display
- */
+/*Inserto en BBDD*/
 $queryD = "INSERT INTO doctores (nombre,numcolegiado) VALUES(
     '". $nombre . "',
     '" . $numcolegiado . "')" ;
 
 $query_resD = mysql_query($queryD);
 
-
-if (!$query_resD) {
-
+/*Si la insercion ha tenido exito hago un select de los doctores
+para averiguar cual es el id del ultimo insertado*/
+if ($query_resD) {
     $sql = "SELECT id_doctor
     FROM doctores
     WHERE numcolegiado='".$numcolegiado."'";
 
     $res = mysql_query($sql);
-
     while($row = mysql_fetch_array($res, MYSQL_ASSOC))
     {
         $id_nuevo=$row['id_doctor'];
     }
 }
 
-
+/*Recojo las clinicas seleccionadas y
+las inserto en BBDD relacionadas con el id del Doctor*/
 for ($i=0;$i<count($clinicas);$i++)
 {
     $queryCD = "INSERT INTO clinica_doctor (id_doctor,id_clinica) VALUES(
@@ -65,6 +63,8 @@ for ($i=0;$i<count($clinicas);$i++)
 } 
 
 
+/*Si alguna de las consultas anteriores falla
+devuelve correspondiente mensaje de error*/
 if (!$query_resD||!$res||$query_resCD) {
     if (mysql_errno() == 1062) {
         $mensaje = "Imposible añadir el doctor, numero de colegiado ya existe";

@@ -1,8 +1,30 @@
 'use strict';
 
+/*Validacion solo letras alfabeto español*/
+$.validator.addMethod("spanishletters", function(value, element) {
+  return this.optional(element) || /^[a-zA-ZñÑáéíóúÁÉÍÓÚ]+$/i.test(value);
+}, "Por favor, solo letras");
 
 
- $(document).ready(function() {
+/*Validacion solo letras y espacios alfabeto español*/
+$.validator.addMethod("spanishlettersspace", function(value, element) {
+  return this.optional(element) || /^[a-zA-ZñÑáéíóúÁÉÍÓÚ\s]*$/i.test(value);
+}, "Por favor, solo letras y espacios");
+
+
+/*
+ * Translated default messages for the jQuery validation plugin.
+ * Locale: ES (Spanish; Español)
+ */
+ jQuery.extend(jQuery.validator.messages, {
+  required: "Es necesario seleccionar al menos una clinica",
+  spanishletters:"Introduzca solo letras",
+  spanishlettersspace: "Introduzca solo letras y espacios",
+  digits: "Introduzca sólo carácteres numéricos"
+});
+
+
+$(document).ready(function() {
   var miTabla = $('#miTabla').DataTable({
     'processing': true,
     'serverSide': true,
@@ -48,24 +70,24 @@
     /*añadimos las clases editarbtn y borrarbtn para procesar los eventos click de los botones. No lo hacemos mediante id ya que habrá más de un
     botón de edición o borrado*/
     'render': function(data) {
-      return '<a class="btn btn-primary editarbtn" href=http://localhost/php/modificar_doctor.php?id_clinica=' + data + '>Editar</a><a data-toggle="modal" data-target="#vmodal_borrar" class="btn btn-warning borrarbtn" href=http://localhost/php/borrar_doctor.php?id_clinica=' + data + '>Borrar</a>';
+      return '<a class="btn btn-primary editarbtn" href=http://localhost/php/modificar_doctor.php?id_doctor=' + data + '>Editar</a><a data-toggle="modal" data-target="#vmodal_borrar" class="btn btn-warning borrarbtn" href=http://localhost/php/borrar_doctor.php?id_doctor=' + data + '>Borrar</a>';
     }
   }]
 });
 
 
-/*Accion de Borrar Doctor, disparará una Ventana Modal para confirmar*/
+/*Accion de BORRAR Doctor, disparará una Ventana Modal para confirmar*/
 $('#miTabla').on('click', '.borrarbtn', function(e) {
- //e.preventDefault();
+ e.preventDefault();
  var nRow = $(this).parents('tr')[0];
  var aData = miTabla.row(nRow).data();
  idDoctor = aData.idDoctor;
- alert(idDoctor);
+ nombre = aData.nombre;
+ $('#nombre').val(nombre);
 });
 
-/*Control de Ventana Modal Borrar Doctor*/
+/*Control de Ventana Modal BORRAR Doctor*/
 $('#vmodal_borrar').on('click','#aceptar_borrar',function(e){
-  alert(idDoctor);
   $.ajax({
     /*Visto en clase*/
     /*En principio el type para api restful sería DELETE
@@ -79,24 +101,13 @@ $('#vmodal_borrar').on('click','#aceptar_borrar',function(e){
    },
    error: function(xhr, status, error) {
     /*Mostraríamos alguna ventana de alerta con el error*/
-    alert("Ha entrado en error");
     /*Manejo del plugion de growl*/
-    /*Primero descargue el jgrowl de
-        https://github.com/stanlemon/jGrowl
-      Pero el bootstrap-notify me gusta más
-      Convierte las alertas bootstrap en notificaciones estilo Growl
-      https://github.com/mouse0270/bootstrap-notify*/
+    /*https://github.com/ksylvest/jquery-growl*/
+    $.growl.error({ title: "ERROR", message: "No se ha podido borrar el Doctor" });
+  },
 
-      $.growl({
-        icon: "glyphicon glyphicon-remove",
-        message: "ERROR. No se ha podido borrar el Doctor"
-      },{
-        type: "danger"
-      });
-    },
-
-    success: function(data) {
-      alert("Borrado Completado");
+  success: function(data) {
+      //alert("Borrado Completado");
       /*Visto en clase*/
       /*obtenemos el mensaje del servidor, es un array!!!
         var mensaje = (data["mensaje"]) //o data[0], en función del tipo de array!!
@@ -104,20 +115,191 @@ $('#vmodal_borrar').on('click','#aceptar_borrar',function(e){
         para volver a pedir vía ajax los datos de la tabla*/
         var $mitabla =  $("#miTabla").dataTable( { bRetrieve : true } );
         $mitabla.fnDraw();
-        $.growl({
-          icon: "glyphicon glyphicon-remove",
-          message: "Borrado de Doctor Completado"
-        },{
-          type: "success"
-        });
+        $.growl.notice({ title: "OK", message: "Borrado de Doctor Completado" });
       },
       complete: {
         /*si queremos hacer algo al terminar la petición ajax*/
       }
     });
-  $('#tabla').fadeIn(100);
-  //$('#formulario').fadeOut(100);
+$('#tabla').fadeIn(100);
 });
+
+
+
+/*Cargamos los clinicas para que aparezcan en el select:*/
+function cargarClinicas() {
+ $.ajax({
+   type: 'POST',
+   dataType: 'json',
+   url: 'php/listar_clinicas.php',
+   async: false,
+   error: function(xhr, status, error) {
+    //mostraríamos alguna ventana de alerta con el error
+  },
+  success: function(data) {
+   $('#clinicas_n,#clinicas_e').empty();
+   $.each(data, function() {
+     $('#clinicas_n,#clinicas_e').append(
+       $('<option ></option>').val(this.id_clinica).html(this.nombre)
+       );
+   });
+ },
+ complete: {
+    //si queremos hacer algo al terminar la petición ajax
+  }
+});
+}
+
+
+
+
+/*Formulario para CREAR NUEVO Doctor*/
+$('#form_crear').validate({
+  rules: {
+   nombre_n: {
+    required: true,
+    spanishlettersspace: true 
+  },
+  numcolegiado_n: {
+    required: true,
+    digits: true
+  },
+  clinicas_n:{
+    required:true
+  }
+},
+submitHandler: function() {
+  nombre_n = $('#nombre_n').val();
+  numcolegiado_n = $('#numcolegiado_n').val();
+  clinicas_n = $('#clinicas_n').val();
+
+
+  $.ajax({
+   type: 'POST',
+   dataType: 'json',
+   url: 'php/crear_doctor.php',
+
+   data: {
+     nombre_n: nombre_n,
+     numcolegiado_n: numcolegiado_n,
+     clinicas_n: clinicas_n
+
+   },
+   error: function(xhr, status, error) {
+    $.growl.error({ title: "ERROR", message: "No se ha podido añadir el Doctor" });
+  },
+  success: function(data) {
+    var $mitabla =  $("#miTabla").dataTable( { bRetrieve : true } );
+    $mitabla.fnDraw();
+    if(data[0].estado==0){
+     $.growl.notice({ title: "OK", message: "Doctor añadido correctamente" });
+   }
+ },
+ complete: {
+ }
+});
+  $('#form_nuevo_doctor').fadeOut(100);
+  $('#tabla').fadeIn(100);
+}
+
+});
+
+
+
+/*Accion de CREAR NUEVO Doctor*/
+$('#nuevo_doctor').click(function(e) {
+ e.preventDefault();
+ $('#nombre_n').val("");
+ $('#numcolegiado_n').val("");
+ $('#tabla').fadeOut(100);
+ $('#form_nuevo_doctor').fadeIn(100);
+ cargarClinicas();
+});
+
+
+
+
+/*Formulario para EDITAR un Doctor ya creado*/
+$('#form_editar').validate({
+  rules: {
+    nombre_e: {
+      required: true,
+      spanishlettersspace: true
+    },
+    numcolegiado_e: {
+      required: true,
+      digits: true
+    },
+    clinicas_e:{
+      required:true
+    }
+  },
+  submitHandler: function() {
+    id_doctor_e = $('#id_doctor_e').val();
+    nombre_e = $('#nombre_e').val();
+    numcolegiado_e = $('#numcolegiado_e').val();
+    clinicas_e = $('#clinicas_e').val();
+
+    $.ajax({
+     type: 'POST',
+     dataType: 'json',
+     url: 'php/modificar_doctor.php',
+     data: {
+       id_doctor_e: id_doctor_e,
+       nombre_e: nombre_e,
+       numcolegiado_e: numcolegiado_e,
+       clinicas_e:clinicas_e
+
+     },
+     error: function(xhr, status, error) {
+      $.growl.error({ title: "ERROR", message: "No se ha podido editar el Doctor" });
+    },
+    success: function(data) {
+      var $mitabla =  $("#miTabla").dataTable( { bRetrieve : true } );
+      $mitabla.fnDraw();
+
+      if(data[0].estado==0){
+       $.growl.notice({ title: "OK", message: "Doctor editado correctamente" });
+     }
+   },
+   complete: {
+    //si queremos hacer algo al terminar la petición ajax
+  }
+});
+
+    $('#tabla').fadeIn(100);
+    $('#form_edita_doctor').fadeOut(100);
+  }
+
+});
+
+
+
+
+/*Accion de EDITAR un Doctor*/
+$('#miTabla').on('click', '.editarbtn', function(e) {
+  e.preventDefault();
+  $('#tabla').fadeOut(100);
+  $('#form_edita_doctor').fadeIn(100);
+  var nRow = $(this).parents('tr')[0];
+  var aData = miTabla.row(nRow).data();
+  $('#id_doctor_e').val(aData.idDoctor);
+  $('#nombre_e').val(aData.nombre);
+  $('#numcolegiado_e').val(aData.numcolegiado);
+  $('#clinicas_e').val(aData.nombreClinica);
+  cargarClinicas();
+  var str = aData.idClinica;
+  /*Separo los id de las clinicas*/
+  str = str.split(",");
+  /*cargo el select con las que ya estaban*/
+  $('#clinicas_e').val(str);
+
+});
+
+
+
+
+
 
 
 

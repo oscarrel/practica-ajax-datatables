@@ -34,22 +34,22 @@ mysql_query('SET names utf8');
  * Get data to display
  */
 
-$id_doctor = $_POST["id_doctor"];
-$nombre = $_POST["nombre"];
-$numcolegiado = $_POST["numcolegiado"];
-$clinicas = $_POST["id_clinica"];
+$id_doctor = $_POST["id_doctor_e"];
+$nombre = $_POST["nombre_e"];
+$numcolegiado = $_POST["numcolegiado_e"];
+$clinicas = $_POST["clinicas_e"];
 
 if($clinicas){
-  $query = "DELETE FROM clinica_doctor WHERE id_doctor=" . $id;
+  $query = "DELETE FROM clinica_doctor WHERE id_doctor=" . $id_doctor;
   $query_res = mysql_query($query);
 }
 
 for ($i=0;$i<count($clinicas);$i++)
 {
   $queryCD = "INSERT INTO clinica_doctor (id_doctor,id_clinica) VALUES(
-    ". $id . ",
+    ". $id_doctor . ",
     " . $clinicas[$i] . ")" ;
-$query_res = mysql_query($queryCD);
+  $query_res = mysql_query($queryCD);
 } 
 
 /* Consulta UPDATE */
