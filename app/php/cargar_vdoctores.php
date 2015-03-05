@@ -32,7 +32,9 @@ $primaryKey = 'id_doctor';
 $columns = array(
 array( 'db' => 'id_doctor', 'dt' => 'idDoctor' ),
 array( 'db' => 'nombre', 'dt' => 'nombre' ),
-array( 'db' => 'clinicas', 'dt' => 'nombreClinica' )
+array( 'db' => 'numcolegiado', 'dt' => 'numcolegiado' ),
+array( 'db' => 'clinicas',     'dt' => 'nombreClinica' ),
+array( 'db' => 'id_clinica',     'dt' => 'idClinica' )
 );
 // SQL server connection information
 $sql_details = array(

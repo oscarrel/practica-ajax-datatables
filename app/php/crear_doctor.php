@@ -26,9 +26,9 @@ if (!mysql_select_db($gaSql['db'], $gaSql['link'])) {
 
 mysql_query('SET names utf8');
 
-$nombre = $_POST["nombreNuevo"];
-$numcolegiado = $_POST["numcolegiadoNuevo"];
-$clinicas = $_POST["clinicas2"];
+$nombre = $_POST["nombre_n"];
+$numcolegiado = $_POST["numcolegiado_n"];
+$clinicas = $_POST["clinicas_n"];
 
 /*
  * SQL queries
@@ -61,7 +61,7 @@ for ($i=0;$i<count($clinicas);$i++)
     $queryCD = "INSERT INTO clinica_doctor (id_doctor,id_clinica) VALUES(
         ". $id_nuevo . ",
         " . $clinicas[$i] . ")" ;
-$query_resCD = mysql_query($queryCD);
+    $query_resCD = mysql_query($queryCD);
 } 
 
 
