@@ -17,10 +17,11 @@ $.validator.addMethod("spanishlettersspace", function(value, element) {
  * Locale: ES (Spanish; Español)
  */
  jQuery.extend(jQuery.validator.messages, {
-  required: "Es necesario seleccionar al menos una clinica",
+  required: "Este campo es obligatorio",
   spanishletters:"Introduzca solo letras",
   spanishlettersspace: "Introduzca solo letras y espacios",
-  digits: "Introduzca sólo carácteres numéricos"
+  digits: "Introduzca sólo carácteres numéricos",
+  minlength: "Es necesario seleccionar al menos una clinica"
 });
 
 
@@ -70,7 +71,7 @@ $(document).ready(function() {
     /*añadimos las clases editarbtn y borrarbtn para procesar los eventos click de los botones. No lo hacemos mediante id ya que habrá más de un
     botón de edición o borrado*/
     'render': function(data) {
-      return '<a class="btn btn-primary editarbtn" href=http://localhost/php/modificar_doctor.php?id_doctor=' + data + '>Editar</a><a data-toggle="modal" data-target="#vmodal_borrar" class="btn btn-warning borrarbtn" href=http://localhost/php/borrar_doctor.php?id_doctor=' + data + '>Borrar</a>';
+      return '<a class="btn btn-primary editarbtn" href=http://localhost/php/modificar_doctor.php?id_doctor=' + data + '>Editar</a><a data-toggle="modal" data-target="#vmodal_borrar"  class="btn btn-warning borrarbtn" href=http://localhost/php/borrar_doctor.php?id_doctor=' + data + '>Borrar</a>';
     }
   }]
 });
@@ -161,11 +162,11 @@ $('#form_crear').validate({
     spanishlettersspace: true 
   },
   numcolegiado_n: {
-    required: true,
     digits: true
   },
   clinicas_n:{
-    required:true
+    required:true,
+    minlength: 1
   }
 },
 submitHandler: function() {
@@ -227,11 +228,11 @@ $('#form_editar').validate({
       spanishlettersspace: true
     },
     numcolegiado_e: {
-      required: true,
       digits: true
     },
     clinicas_e:{
-      required:true
+      required:true,
+      minlength: 1
     }
   },
   submitHandler: function() {
